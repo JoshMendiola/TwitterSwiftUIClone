@@ -9,7 +9,7 @@ import Firebase
 import FirebaseFirestoreSwift
 import FirebaseStorage
 
-struct UserService{
+struct UserService{ //for fetching your own user information from firebase
     
     func fetchUser(withUid uid: String, completion: @escaping(User)->Void){
         //print("DEBUG: Fetch user info")
@@ -24,17 +24,13 @@ struct UserService{
             }
     }
     
-    func fetchUsers(completion: @escaping([User]) -> Void){
-        var users = [User]()
+    func fetchUsers(completion: @escaping([User]) -> Void){ //for fetching other user information
+
         Firestore.firestore().collection("users")
             .getDocuments { snapshot, _ in
                 guard let documents = snapshot?.documents else {return}
+                let users = documents.compactMap({try? $0.data(as: User.self)}) //higher order function used for shortening for loop
                 
-                
-                documents.forEach { document in
-                    guard let user = try? document.data(as: User.self) else {return}
-                    users.append(user)
-                }
                 completion(users)
             }
     }
